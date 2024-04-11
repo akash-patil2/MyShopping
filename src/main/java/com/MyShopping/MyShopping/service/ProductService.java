@@ -1,6 +1,7 @@
 package com.MyShopping.MyShopping.service;
 
 
+import com.MyShopping.MyShopping.dto.ProductDTO;
 import com.MyShopping.MyShopping.exceptions.ResourceNotFound;
 import com.MyShopping.MyShopping.exceptions.UnAuthorized;
 import com.MyShopping.MyShopping.models.AppUser;
@@ -9,6 +10,8 @@ import com.MyShopping.MyShopping.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,6 +21,59 @@ public class ProductService {
     UserService userService;
     @Autowired
     ProductRepository productRepository;
+
+    public Product getProductById(UUID id){
+        return productRepository.findById(id).orElse(null);
+    }
+
+    public void updateProductQuantity(UUID productID, int quantity){
+        productRepository.updateProductQuantity(productID, quantity);
+    }
+
+    public List<ProductDTO> convertProductToProductDTO(List<Product> products){
+
+        List<ProductDTO> productList = new ArrayList<>();
+
+        for(Product product : products){
+
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setProductName(product.getName());
+            productDTO.setProductCategory(product.getCategory());
+            productDTO.setId(product.getId());
+            productDTO.setPrice(product.getPrice());
+            productDTO.setDescription(product.getDescription());
+            productDTO.setRating(product.getRating());
+            productDTO.setSellerName(product.getUser().getName());
+            productList.add(productDTO);
+        }
+
+        return productList;
+    }
+
+    public List<ProductDTO> searchByProductName(String productName){
+
+        List<Product> products = productRepository.getProductByName(productName);
+        List<ProductDTO> productList = convertProductToProductDTO(products);
+        return productList;
+    }
+
+    public List<ProductDTO> searchByCategory(String category){
+        List<Product> products = productRepository.getProductByCategory(category);
+        List<ProductDTO> productList = convertProductToProductDTO(products);
+        return productList;
+    }
+
+    public List<ProductDTO> searchByCategoryAndProductName(String productName, String category){
+        List<Product> products = productRepository.getProductByCategoryAndName(category, productName);
+        List<ProductDTO> productList = convertProductToProductDTO(products);
+        return productList;
+    }
+
+    public List<ProductDTO> getAllProducts(){
+        List<Product> products = productRepository.findAll();
+        List<ProductDTO> productList = convertProductToProductDTO(products);
+        return productList;
+    }
 
     public void registerProduct(Product product, UUID sellerId){
         // First we will check, this userId exists in system or not
