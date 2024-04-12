@@ -27,6 +27,9 @@ public class BuyerService {
     @Autowired
     OrderRepository orderRepository;
 
+    @Autowired
+    MailService mailService;
+
     public BillDTO placeOrder(List<OrderDetailsDTO> OrderDetailsDTOList, UUID userID){
 
         AppUser user = userService.getUserById(userID);
@@ -54,6 +57,7 @@ public class BuyerService {
             orderProducts.add(orderProduct);
             int updatedQuantity = product.getQuantity() - order.getQuantity();
             productService.updateProductQuantity(productId, updatedQuantity);
+
         }
 
         bill.setBuyerID(user.getId());
